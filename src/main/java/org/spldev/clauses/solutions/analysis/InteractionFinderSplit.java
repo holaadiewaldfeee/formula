@@ -38,9 +38,8 @@ import org.spldev.clauses.*;
  */
 public class InteractionFinderSplit extends AbstractInteractionFinder {
 
-	public InteractionFinderSplit(Collection<LiteralList> sample,
-		SolutionUpdater configurationGenerator,
-		Predicate<LiteralList> configurationChecker) {
+	public InteractionFinderSplit(Collection<LiteralList> sample, SolutionUpdater configurationGenerator,
+			Predicate<LiteralList> configurationChecker) {
 		super(sample, configurationGenerator, configurationChecker);
 	}
 
@@ -72,32 +71,35 @@ public class InteractionFinderSplit extends AbstractInteractionFinder {
 					failingConfs.add(c2);
 //					int oldSize = interactionsAll.size();
 					interactionsAll = interactionsAll.stream() //
-						.filter(interaction -> c1.containsAll(interaction) && c2.containsAll(interaction)) //
-						.collect(Collectors.toList());
+							.filter(interaction -> c1.containsAll(interaction) && c2.containsAll(interaction)) //
+							.collect(Collectors.toList());
 					// TODO can fix potential endless loop, but leads to bad results
 //					if (interactionsAll.size() == oldSize) {
 //						return new LiteralList();
 //					}
 				} else {
 					validConfs.add(c2);
-					interactionsAll = interactionsLeft;
+					interactionsAll = interactionsAll.stream() //
+							.filter(interaction -> c1.containsAll(interaction) && !c2.containsAll(interaction)) //
+							.collect(Collectors.toList());
 				}
 			} else {
 				validConfs.add(c1);
-				interactionsAll = interactionsRight;
+				interactionsAll = interactionsAll.stream() //
+						.filter(interaction -> !c1.containsAll(interaction) && c2.containsAll(interaction)) //
+						.collect(Collectors.toList());
 			}
 		}
 		return !interactionsAll.isEmpty() //
-			? interactionsAll.iterator().next() //
-			: new LiteralList();
+				? interactionsAll.iterator().next() //
+				: new LiteralList();
+
 	}
 
-	private void split(final List<LiteralList> interactionsAll,
-		final List<LiteralList> interactionsLeft, final List<LiteralList> interactionsRight) {
-		final List<Integer> literals = interactionsAll
-			.stream()
-			.flatMapToInt(l -> Arrays.stream(l.getLiterals()))
-			.distinct().boxed().collect(Collectors.toList());
+	private void split(final List<LiteralList> interactionsAll, final List<LiteralList> interactionsLeft,
+			final List<LiteralList> interactionsRight) {
+		final List<Integer> literals = interactionsAll.stream().flatMapToInt(l -> Arrays.stream(l.getLiterals()))
+				.distinct().boxed().collect(Collectors.toList());
 		LinkedHashSet<Integer> selections = new LinkedHashSet<>(literals.subList(0, (int) (literals.size() * 0.7)));
 		interactionsAll.stream().forEach(interaction -> {
 			if (IntStream.of(interaction.getLiterals()).allMatch(selections::contains)) {
