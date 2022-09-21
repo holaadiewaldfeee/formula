@@ -79,6 +79,10 @@ public abstract class AbstractAnalysis<T, S extends Solver, I> implements Analys
 		updateAssumptions(this.solver);
 	}
 
+	public void resetAssumptions() {
+		resetSolver(this.solver);
+	}
+
 	public Object getParameters() {
 		return Arrays.asList(assumptions, assumedConstraints);
 	}

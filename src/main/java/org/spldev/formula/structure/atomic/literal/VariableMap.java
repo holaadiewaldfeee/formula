@@ -369,12 +369,13 @@ public class VariableMap implements Cloneable, Serializable, Iterable<VariableMa
 
 	public boolean removeIndex(int index) {
 		if (isValidIndex(index)) {
+			Optional<String> name = getName(index);
 			if (index == getMaxIndex()) {
 				indexToName.remove(index);
 			} else {
 				indexToName.set(index, null);
 			}
-			getName(index).ifPresent(nameToIndex::remove);
+			name.ifPresent(nameToIndex::remove);
 			return true;
 		} else {
 			return false;

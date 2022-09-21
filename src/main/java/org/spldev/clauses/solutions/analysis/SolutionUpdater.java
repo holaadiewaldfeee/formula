@@ -36,6 +36,8 @@ import org.spldev.clauses.*;
 public interface SolutionUpdater {
 
 	Optional<LiteralList> complete(LiteralList partialSolution);
+	
+	Optional<LiteralList> complete(LiteralList partialSolution, List<LiteralList> excludeClause);
 
 	default LiteralList update(LiteralList partialSolution) {
 		return partialSolution;

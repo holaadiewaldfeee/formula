@@ -31,30 +31,48 @@ import org.spldev.clauses.*;
 public class InteractionFinderNaive extends AbstractInteractionFinder {
 
 	public InteractionFinderNaive(Collection<LiteralList> sample,
-		SolutionUpdater configurationGenerator,
-		Predicate<LiteralList> configurationChecker) {
+									SolutionUpdater configurationGenerator,
+									Predicate<LiteralList> configurationChecker) {
 		super(sample, configurationGenerator, configurationChecker);
 	}
 
-	public LiteralList find(int t) {
-		List<LiteralList> interactionsAll = computePotentialInterations(t);
+	public List<LiteralList> find(int t, int numberOfFeatures) {
+//		System.out.println("---------- ");
+		List<LiteralList> interactionsAll = computePotentialInteractions(t);
+//		System.out.println("interactionsAllSize: " + interactionsAll.size());
+//		System.out.println("---------- ");
 
-		while (interactionsAll.size() > 1) {
+		int configCount = 0;
+		int maxConfig = (int) (2* Math.round(3*(Math.log(numberOfFeatures)/Math.log(2)))) +100;
+//		System.out.println("---------- " + maxConfig);
+		
+		while (interactionsAll.size() > 1 && configCount < maxConfig) {
+			addInteractionCount(interactionsAll.size());
+			//HERE create new configuration
 			LiteralList configuration = updater.complete(null).orElse(null);
+//			System.out.println("configuration " + configuration);
 			if (configuration == null) {
-				return interactionsAll.get(0);
+				return interactionsAll;
 			}
-			if (verifyer.test(configuration)) {
+			if (verifier.test(configuration)) {
+				validConfs.add(configuration);
+				// HERE update interactionsAll to exlcude all fis from valid configs to be the faulty one
 				interactionsAll = interactionsAll.stream() //
 					.filter(combo -> !configuration.containsAll(combo)) //
 					.collect(Collectors.toList());
 			} else {
+				failingConfs.add(configuration);
+				// HERE update interactionsAll to intersect all failing fis
 				interactionsAll = interactionsAll.stream() //
 					.filter(combo -> configuration.containsAll(combo)) //
 					.collect(Collectors.toList());
 			}
+			configCount++;
+			
+//			System.out.println(configuration);
+//			System.out.println("interactionsAllSize: " +interactionsAll.size());
 		}
-		return interactionsAll.isEmpty() ? new LiteralList() : interactionsAll.get(0);
+		return interactionsAll.isEmpty() ? new ArrayList<LiteralList>() : interactionsAll;
 	}
 
 }

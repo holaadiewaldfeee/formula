@@ -36,8 +36,8 @@ public class InteractionFinderSplit2 extends AbstractInteractionFinder {
 		super(sample, configurationGenerator, configurationChecker);
 	}
 
-	public LiteralList find(int t) {
-		return binarySearch(computePotentialInterations(t));
+	public List<LiteralList> find(int t) {
+		return binarySearch(computePotentialInteractions(t));
 	}
 
 	private LiteralList binarySearch(List<LiteralList> possibleInteractions) {
@@ -56,11 +56,11 @@ public class InteractionFinderSplit2 extends AbstractInteractionFinder {
 			LiteralList c2 = configs.get(1);
 
 //			LiteralList c1 = getConfiguration(interactionsLeft);
-			if (!verifyer.test(c1)) {
+			if (!verifier.test(c1)) {
 				failingConfs.add(c1);
 				// TODO generate configuration that explicitly forbids interaction of left half
 //				LiteralList c2 = getConfiguration(interactionsRight);
-				if (!verifyer.test(c2)) {
+				if (!verifier.test(c2)) {
 					failingConfs.add(c2);
 //					int oldSize = interactionsAll.size();
 					interactionsAll = interactionsAll.stream() //

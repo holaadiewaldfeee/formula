@@ -22,6 +22,8 @@
  */
 package org.spldev.clauses.solutions.analysis;
 
+import java.util.List;
+
 import org.spldev.clauses.*;
 
 /**
@@ -32,6 +34,6 @@ import org.spldev.clauses.*;
  */
 public interface InteractionFinder {
 
-	LiteralList find(int t);
+	List<LiteralList> find(int t, int x);
 
 }
