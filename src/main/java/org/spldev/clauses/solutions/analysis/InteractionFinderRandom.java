@@ -28,49 +28,39 @@ import java.util.stream.*;
 
 import org.spldev.clauses.*;
 
-public class InteractionFinderNaive extends AbstractInteractionFinder {
+public class InteractionFinderRandom extends AbstractInteractionFinder {
 
-	public InteractionFinderNaive(Collection<LiteralList> sample,
+	public InteractionFinderRandom(Collection<LiteralList> sample,
 									SolutionUpdater configurationGenerator,
 									Predicate<LiteralList> configurationChecker) {
 		super(sample, configurationGenerator, configurationChecker);
 	}
 
 	public List<LiteralList> find(int t, int numberOfFeatures) {
-//		System.out.println("---------- ");
 		List<LiteralList> interactionsAll = computePotentialInteractions(t);
-//		System.out.println("interactionsAllSize: " + interactionsAll.size());
-//		System.out.println("---------- ");
 
 		int configCount = 0;
 		int maxConfig = (int) (2* Math.round(3*(Math.log(numberOfFeatures)/Math.log(2)))) +100;
-//		System.out.println("---------- " + maxConfig);
 		
 		while (interactionsAll.size() > 1 && configCount < maxConfig) {
 			addInteractionCount(interactionsAll.size());
-			//HERE create new configuration
 			LiteralList configuration = updater.complete(null).orElse(null);
-//			System.out.println("configuration " + configuration);
 			if (configuration == null) {
 				return interactionsAll;
 			}
 			if (verifier.test(configuration)) {
-				validConfs.add(configuration);
-				// HERE update interactionsAll to exlcude all fis from valid configs to be the faulty one
+				correctConfs.add(configuration);
 				interactionsAll = interactionsAll.stream() //
 					.filter(combo -> !configuration.containsAll(combo)) //
 					.collect(Collectors.toList());
 			} else {
 				failingConfs.add(configuration);
-				// HERE update interactionsAll to intersect all failing fis
 				interactionsAll = interactionsAll.stream() //
 					.filter(combo -> configuration.containsAll(combo)) //
 					.collect(Collectors.toList());
 			}
 			configCount++;
 			
-//			System.out.println(configuration);
-//			System.out.println("interactionsAllSize: " +interactionsAll.size());
 		}
 		return interactionsAll.isEmpty() ? new ArrayList<LiteralList>() : interactionsAll;
 	}
